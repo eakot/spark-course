@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  download:
+    build: download
+    working_dir: /data
+    volumes:
+      - ./data:/data
+    command: ["http://37.139.43.86/data-nov"]
+
+  zeppelin:
+    build: zeppelin
+    volumes:
+      - ./data:/data
+      - ./zeppelin/notebook:/zeppelin/notebook
+    environment:
+      - ZEPPELIN_ADDR=0.0.0.0
+    ports:
+      - 8080:8080
