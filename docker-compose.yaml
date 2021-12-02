@@ -1,18 +1,61 @@
 version: "3.9"
 
 services:
-  download:
+
+#  download_events:
+#    build: download
+#    working_dir: /data
+#    volumes:
+#      - ./data:/data
+#    command: [ "http://37.139.43.86/data-nov" ]
+
+  download_bank:
     build: download
     working_dir: /data
     volumes:
       - ./data:/data
-    command: ["http://37.139.43.86/data-nov"]
+    command: [ "http://37.139.43.86/bank" ]
+
+  spark_task_1:
+    build: spark_task_1
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_1
+      - SRC_FILE=data/bank.csv
+      - TARGET_FILE=data/bank.parquet
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_1:/app/spark_task_1
+
+  postgresql:
+    image: 'bitnami/postgresql:13'
+    ports:
+      - 5432:5432
+    volumes:
+      - './services/postgresql:/bitnami/postgresql'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_USERNAME=p_user
+      - POSTGRESQL_PASSWORD=password123
+      - POSTGRESQL_DATABASE=postgre
+
+  spark_task_2:
+    build: spark_task_2
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_2
+      - SRC_FILE=data/bank.parquet
+      - TARGET_TABLE=public.bank
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_2:/app/spark_task_2
+    links:
+      - postgresql:postgresql
 
   zeppelin:
     build: zeppelin
     volumes:
       - ./data:/data
       - ./zeppelin/notebook:/zeppelin/notebook
+      - ./zeppelin/conf:/zeppelin/conf
     environment:
       - ZEPPELIN_ADDR=0.0.0.0
     ports:
