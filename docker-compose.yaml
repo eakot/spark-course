@@ -60,3 +60,15 @@ services:
       - ZEPPELIN_ADDR=0.0.0.0
     ports:
       - 8080:8080
+
+  age_distr:
+    build: age_distr
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/age_distr
+      - SRC_TABLE=public.bank
+      - TARGET_FILE=data/age_distr.csv
+    volumes:
+      - ./data:/app/data
+      - ./age_distr:/app/age_distr
+    links:
+      - postgresql:postgresql

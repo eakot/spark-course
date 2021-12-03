@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "spark",
+            "database": "postgre",
+            "username": "p_user",
+            "password": "password123"
+        }
+    ]
+}

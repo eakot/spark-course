@@ -11,7 +11,7 @@ df = spark.read.parquet(SRC_FILE).na.drop('any')
 df.show()
 df.printSchema()
 
-url = "jdbc:postgresql://postgresql:5432/postgres"
+url = "jdbc:postgresql://postgresql:5432/postgre"
 
 (
 df
