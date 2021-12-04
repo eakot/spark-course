@@ -2,13 +2,6 @@ version: "3.9"
 
 services:
 
-#  download_events:
-#    build: download
-#    working_dir: /data
-#    volumes:
-#      - ./data:/data
-#    command: [ "http://37.139.43.86/data-nov" ]
-
   download_bank:
     build: download
     working_dir: /data
@@ -50,17 +43,6 @@ services:
     links:
       - postgresql:postgresql
 
-  zeppelin:
-    build: zeppelin
-    volumes:
-      - ./data:/data
-      - ./zeppelin/notebook:/zeppelin/notebook
-      - ./zeppelin/conf:/zeppelin/conf
-    environment:
-      - ZEPPELIN_ADDR=0.0.0.0
-    ports:
-      - 8080:8080
-
   age_distr:
     build: age_distr
     environment:
@@ -70,5 +52,18 @@ services:
     volumes:
       - ./data:/app/data
       - ./age_distr:/app/age_distr
+    links:
+      - postgresql:postgresql
+
+  zeppelin:
+    build: zeppelin
+    volumes:
+      - ./data:/app/data
+      - ./zeppelin/notebook:/zeppelin/notebook
+      - ./zeppelin/conf:/zeppelin/conf
+    environment:
+      - ZEPPELIN_ADDR=0.0.0.0
+    ports:
+      - 8080:8080
     links:
       - postgresql:postgresql

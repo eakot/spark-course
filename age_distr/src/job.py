@@ -8,12 +8,13 @@ import pyspark.sql.functions as f
 def extract_data(spark: SparkSession, SRC_TABLE: str) -> DataFrame:
     return (spark
         .read
-        .option('driver', 'org.postgresql.Driver')
         .format('jdbc')
+        .option('driver', 'org.postgresql.Driver')
         .option('url', 'jdbc:postgresql://postgresql:5432/postgre')
-        .option('dbtable', SRC_TABLE)
         .option('user', 'p_user')
         .option('password', 'password123')
+        .option('dbtable', SRC_TABLE)
+        .option('fetchsize', 10000)
         .load()
     )
 
@@ -27,10 +28,14 @@ def transform_data(df: DataFrame) -> DataFrame:
 
 def save_data(df: DataFrame, TARGET_FILE: str) -> None:
     (df
+        .coalesce(1)
+
         .write
+        .format('csv')
         .option('header', 'true')
         .option('delimiter', ';')
-        .csv(TARGET_FILE)
+        .option('mode', 'overwrite')
+        .save(TARGET_FILE)
     )
 
 
@@ -47,18 +52,18 @@ def explain_query(extract_transform: Callable) -> Callable:
 
 @explain_query
 def extract_transform(spark: SparkSession, SRC_TABLE: str) -> DataFrame:
-    jdbc_url = 'jdbc:postgresql://postgresql:5432/postgre'
-    connection_properties = {
-        'user': 'p_user',
-        'password': 'password123',
-        'driver': 'org.postgresql.Driver'
-    }
-    
-    pushdown_query = '(SELECT age, COUNT(age) AS count FROM public.bank GROUP BY age) age_alias'
+    pushdown_query = f'(SELECT age, COUNT(age) AS count FROM {SRC_TABLE} GROUP BY age) age_alias'
 
     return (spark
         .read
-        .jdbc(url=jdbc_url, table=pushdown_query, properties=connection_properties)
+        .format('jdbc')
+        .option('driver', 'org.postgresql.Driver')
+        .option('url', 'jdbc:postgresql://postgresql:5432/postgre')
+        .option('user', 'p_user')
+        .option('password', 'password123')
+        .option('dbtable', pushdown_query)
+        .option('fetchsize', 10000)
+        .load()
     )
 
 
