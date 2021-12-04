@@ -30,9 +30,17 @@ services:
       - POSTGRESQL_USERNAME=p_user
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=postgre
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U p_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   spark_task_2:
     build: spark_task_2
+    depends_on:
+      postgresql:
+        condition: service_healthy
     environment:
       - PYTHONPATH=${PYTHONPATH}:/app/spark_task_2
       - SRC_FILE=data/bank.parquet
@@ -45,6 +53,11 @@ services:
 
   age_distr:
     build: age_distr
+    depends_on:
+      spark_task_2:
+        condition: service_completed_successfully
+      postgresql:
+        condition: service_healthy
     environment:
       - PYTHONPATH=${PYTHONPATH}:/app/age_distr
       - SRC_TABLE=public.bank
@@ -52,18 +65,5 @@ services:
     volumes:
       - ./data:/app/data
       - ./age_distr:/app/age_distr
-    links:
-      - postgresql:postgresql
-
-  zeppelin:
-    build: zeppelin
-    volumes:
-      - ./data:/app/data
-      - ./zeppelin/notebook:/zeppelin/notebook
-      - ./zeppelin/conf:/zeppelin/conf
-    environment:
-      - ZEPPELIN_ADDR=0.0.0.0
-    ports:
-      - 8080:8080
     links:
       - postgresql:postgresql
