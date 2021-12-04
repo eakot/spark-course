@@ -1,4 +1,5 @@
 from src.conf import SRC_TABLE, TARGET_FILE
+from typing import Callable
 
 from pyspark.sql import SparkSession, DataFrame
 import pyspark.sql.functions as f
@@ -33,6 +34,18 @@ def save_data(df: DataFrame, TARGET_FILE: str) -> None:
     )
 
 
+def explain_query(extract_transform: Callable) -> Callable:
+    """
+    Декоратор, позволяющий увидеть физический план запроса для 
+    функции, которая агрегирует данные на уровне базы, а затем 
+    возвращает уже сагрегированные данные.
+    """
+    def wrapper(*args, **kwargs):
+        return extract_transform(*args, **kwargs).explain()
+    return wrapper
+
+
+@explain_query
 def extract_transform(spark: SparkSession, SRC_TABLE: str) -> DataFrame:
     jdbc_url = 'jdbc:postgresql://postgresql:5432/postgre'
     connection_properties = {
@@ -68,7 +81,8 @@ if __name__ == '__main__':
     print('\n')
 
     print('Агрегация на стороне базы:\n')
-    extract_transform(spark, SRC_TABLE).explain()  # Агрегация на стороне базы
+    extract_transform(spark, SRC_TABLE)
+    #extract_transform(spark, SRC_TABLE).explain()  # Агрегация на стороне базы
     print('\n')
 
     spark.stop()
