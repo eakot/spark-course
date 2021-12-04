@@ -42,8 +42,11 @@ services:
   spark_task_2:
     build: spark_task_2
     depends_on:
+<<<<<<< HEAD
       spark_task_1:
         condition: service_completed_successfully
+=======
+>>>>>>> 659fc12 (added healthcheck)
       postgresql:
         condition: service_healthy
     environment:
@@ -72,6 +75,9 @@ services:
     volumes:
       - ./data:/app/data
       - ./age_distr:/app/age_distr
+<<<<<<< HEAD
       - ./logs:/app/logs
+=======
+>>>>>>> 659fc12 (added healthcheck)
     links:
       - postgresql:postgresql
