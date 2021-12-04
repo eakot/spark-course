@@ -1,4 +1,4 @@
-version: "3.9"
+#version: "3.9"
 
 services:
 
@@ -47,6 +47,16 @@ services:
     volumes:
       - ./data:/app/data
       - ./spark_task_2:/app/spark_task_2
+    links:
+      - postgresql:postgresql
+
+  spark_homework:
+    build: spark_homework
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_homework
+    volumes:
+      - ./data:/app/data
+      - ./spark_homework:/app/spark_homework
     links:
       - postgresql:postgresql
 
