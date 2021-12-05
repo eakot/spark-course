@@ -38,6 +38,16 @@ services:
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=postgre
 
+  spark_task_hw:
+    build: spark_task_hw
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_hw
+      - SRC_FILE=data/bank.parquet
+      - TARGET_FILE=data/age.csv
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_hw:/app/spark_task_hw
+
   spark_task_2:
     build: spark_task_2
     environment:
@@ -47,6 +57,18 @@ services:
     volumes:
       - ./data:/app/data
       - ./spark_task_2:/app/spark_task_2
+    links:
+      - postgresql:postgresql
+
+  spark_task_hw_bd:
+    build: spark_task_hw_bd
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_hw_bd
+      - SRC_FILE=public.bank
+      - TARGET_FILE=data/age_bd.csv
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_hw_bd:/app/spark_task_hw_bd
     links:
       - postgresql:postgresql
 

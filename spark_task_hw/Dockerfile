@@ -13,5 +13,5 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 #--mount=type=cache,target=/root/.cache \
 
-CMD ["spark_task_1/src/task.py"]
+CMD ["spark_task_hw/src/task.py"]
 ENTRYPOINT ["python3"]
