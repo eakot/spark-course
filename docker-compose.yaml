@@ -50,6 +50,18 @@ services:
     links:
       - postgresql:postgresql
 
+  spark_task_3:
+    build: spark_task_3
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_3
+      - TARGET_FILE=data/bank_agg.csv
+      - SOURCE_TABLE=public.bank
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_3:/app/spark_task_3
+    links:
+      - postgresql:postgresql
+
   zeppelin:
     build: zeppelin
     volumes:
