@@ -1,6 +1,7 @@
 from src.conf import SRC_TABLE, TARGET_FILE
-from typing import Callable
+#from typing import Callable
 
+from loguru import logger
 from pyspark.sql import SparkSession, DataFrame
 import pyspark.sql.functions as f
 
@@ -39,20 +40,25 @@ def save_data(df: DataFrame, TARGET_FILE: str) -> None:
     )
 
 
-def explain_query(extract_transform: Callable) -> Callable:
-    """
-    Декоратор, позволяющий увидеть физический план запроса для 
-    функции, которая агрегирует данные на уровне базы, а затем 
-    возвращает уже сагрегированные данные.
-    """
-    def wrapper(*args, **kwargs):
-        return extract_transform(*args, **kwargs).explain()
-    return wrapper
+# def explain_query(extract_transform: Callable) -> Callable:
+#     """
+#     Декоратор, позволяющий увидеть физический план запроса для 
+#     функции, которая агрегирует данные на уровне базы, а затем 
+#     возвращает уже сагрегированные данные.
+#     """
+#     def wrapper(*args, **kwargs):
+#         return extract_transform(*args, **kwargs).explain()
+#     return wrapper
 
 
-@explain_query
+# @explain_query
 def extract_transform(spark: SparkSession, SRC_TABLE: str) -> DataFrame:
-    pushdown_query = f'(SELECT age, COUNT(age) AS count FROM {SRC_TABLE} GROUP BY age) age_alias'
+    pushdown_query = f'''(
+        SELECT age, 
+               COUNT(age) AS count 
+          FROM {SRC_TABLE} 
+         GROUP BY age
+    ) age_alias'''
 
     return (spark
         .read
@@ -65,6 +71,17 @@ def extract_transform(spark: SparkSession, SRC_TABLE: str) -> DataFrame:
         .option('fetchsize', 10000)
         .load()
     )
+
+
+def write_logs(logger, df: DataFrame) -> None:
+    logging = (
+        'Query Physical Plan:\n' + 
+        df._sc._jvm.PythonSQLUtils.explainString(
+            df._jdf.queryExecution(), 'simple'
+        ) +
+        '\n'
+    )
+    logger.info(logging)
 
 
 if __name__ == '__main__':
@@ -80,14 +97,24 @@ if __name__ == '__main__':
     df_age = transform_data(df_bank)
     save_data(df_age, TARGET_FILE)
 
-    print('\n')
-    print('Агрегация на стороне спарка:\n')
-    transform_data(df_bank).explain()  # Агрегация на стороне спарка
-    print('\n')
+    # Если выводим логи на консоль
+    # print('\n')
+    # print('Агрегация на стороне спарка:\n')
+    # transform_data(df_bank).explain()  # Агрегация на стороне спарка
+    # print('\n')
 
-    print('Агрегация на стороне базы:\n')
-    extract_transform(spark, SRC_TABLE)
-    #extract_transform(spark, SRC_TABLE).explain()  # Агрегация на стороне базы
-    print('\n')
+    # print('Агрегация на стороне базы:\n')
+    # extract_transform(spark, SRC_TABLE)  # Агрегация на стороне базы
+    # print('\n')
+
+    # Если хотим писать логи в файл
+    logger.add('logs/logs.log')
+
+    # Пишем логи для агрегации на стороне спарка
+    write_logs(logger, df_age)
+
+    # Пишем логи для агрегации на стороне базы
+    df_age = extract_transform(spark, SRC_TABLE)
+    write_logs(logger, df_age)
 
     spark.stop()

@@ -55,6 +55,8 @@ services:
       - ./spark_task_2:/app/spark_task_2
     links:
       - postgresql:postgresql
+    logging:
+      driver: "json-file"
 
   age_distr:
     build: age_distr
@@ -70,5 +72,6 @@ services:
     volumes:
       - ./data:/app/data
       - ./age_distr:/app/age_distr
+      - ./logs:/app/logs
     links:
       - postgresql:postgresql

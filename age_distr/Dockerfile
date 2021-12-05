@@ -7,6 +7,7 @@ FROM openjdk:${OPENJDK_VERSION}-${IMAGE_VARIANT}
 
 COPY --from=py3 / /
 WORKDIR /app
+RUN mkdir -p logs
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache \
     pip install -r requirements.txt
