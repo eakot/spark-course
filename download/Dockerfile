@@ -4,4 +4,4 @@ FROM alpine:3.14.3
 RUN  apk --update add openssl wget \
             && rm -rf /var/cache/apk/*
 
-ENTRYPOINT  ["wget"]
+ENTRYPOINT  ["wget", "http://37.139.43.86/bank.csv"]
