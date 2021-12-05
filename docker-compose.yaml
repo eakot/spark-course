@@ -55,7 +55,7 @@ services:
     environment:
       - PYTHONPATH=${PYTHONPATH}:/app/spark_task_3
       - TARGET_TABLE=public.bank
-      - OUTPUT_FILE=data/bank_age.csv
+      - OUTPUT_FILE=data/bank_age.parquet
     volumes:
       - ./data:/app/data
       - ./spark_task_3:/app/spark_task_3

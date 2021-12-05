@@ -8,22 +8,16 @@ spark = SparkSession.builder\
     .getOrCreate()
 
 url = "jdbc:postgresql://postgresql:5432/postgres"
+connectionProperties = {"driver": "org.postgresql.Driver", "user": "p_user", "password": "password123"}
 
-df_bank = spark.read \
-    .option("driver", "org.postgresql.Driver") \
-    .format("jdbc") \
-    .option("url", url) \
-    .option("dbtable", TARGET_TABLE) \
-    .option("user", "p_user") \
-    .option("password", "password123") \
-    .load()
-
+# Doing aggregation on the Spark side
+df_bank = spark.read.jdbc(url=url, table=TARGET_TABLE, properties=connectionProperties)
 df_age = df_bank \
         .groupBy("age") \
         .agg(f.count("*").alias("count")) \
         .orderBy("age")
 
 df_age.explain()
-df_age.show()
 
-df_age.write.option("header", True).csv(OUTPUT_FILE)
+
+df_age.repartition(1).write.mode("overwrite").format("parquet").save(OUTPUT_FILE)
