@@ -81,8 +81,12 @@ services:
       - ./data:/app/data
       - ./age_distr:/app/age_distr
 <<<<<<< HEAD
+<<<<<<< HEAD
       - ./logs:/app/logs
 =======
 >>>>>>> 659fc12 (added healthcheck)
+=======
+      - ./logs:/app/logs
+>>>>>>> 8174700 (added logging)
     links:
       - postgresql:postgresql
