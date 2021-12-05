@@ -24,7 +24,8 @@ url = "jdbc:postgresql://postgresql:5432/postgres"
         .groupBy("age")
         .agg(f.count("*").alias("row_count"))
         .orderBy("age")
-        .explain()
+        .write
+        .csv(TARGET_FILE)
 )
 
 # == Physical Plan ==
