@@ -11,6 +11,9 @@ services:
 
   spark_task_1:
     build: spark_task_1
+    depends_on:
+      download_bank:
+        condition: service_completed_successfully
     environment:
       - PYTHONPATH=${PYTHONPATH}:/app/spark_task_1
       - SRC_FILE=data/bank.csv
@@ -39,6 +42,8 @@ services:
   spark_task_2:
     build: spark_task_2
     depends_on:
+      spark_task_1:
+        condition: service_completed_successfully
       postgresql:
         condition: service_healthy
     environment:
