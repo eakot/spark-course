@@ -43,10 +43,15 @@ services:
     build: spark_task_2
     depends_on:
 <<<<<<< HEAD
+<<<<<<< HEAD
       spark_task_1:
         condition: service_completed_successfully
 =======
 >>>>>>> 659fc12 (added healthcheck)
+=======
+      spark_task_1:
+        condition: service_completed_successfully
+>>>>>>> 0d9485b (added dependencies to docker-compose)
       postgresql:
         condition: service_healthy
     environment:
