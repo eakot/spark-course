@@ -9,6 +9,13 @@ services:
 #      - ./data:/data
 #    command: [ "http://37.139.43.86/data-nov" ]
 
+  download_habr:
+    build: download
+    working_dir: /data
+    volumes:
+      - ./data:/data
+    command: [ "http://37.139.43.86/habr_data" ]
+
   download_bank:
     build: download
     working_dir: /data
@@ -47,6 +54,18 @@ services:
     volumes:
       - ./data:/app/data
       - ./spark_task_2:/app/spark_task_2
+    links:
+      - postgresql:postgresql
+
+  spark_task_3:
+    build: spark_task_3
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_3
+      - SRC_TABLE=public.bank
+      - TARGET_FILE=data/age.csv
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_3:/app/spark_task_3
     links:
       - postgresql:postgresql
 
