@@ -42,16 +42,8 @@ services:
   spark_task_2:
     build: spark_task_2
     depends_on:
-<<<<<<< HEAD
-<<<<<<< HEAD
       spark_task_1:
         condition: service_completed_successfully
-=======
->>>>>>> 659fc12 (added healthcheck)
-=======
-      spark_task_1:
-        condition: service_completed_successfully
->>>>>>> 0d9485b (added dependencies to docker-compose)
       postgresql:
         condition: service_healthy
     environment:
@@ -80,13 +72,6 @@ services:
     volumes:
       - ./data:/app/data
       - ./age_distr:/app/age_distr
-<<<<<<< HEAD
-<<<<<<< HEAD
       - ./logs:/app/logs
-=======
->>>>>>> 659fc12 (added healthcheck)
-=======
-      - ./logs:/app/logs
->>>>>>> 8174700 (added logging)
     links:
       - postgresql:postgresql
