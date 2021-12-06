@@ -60,3 +60,16 @@ services:
       - ZEPPELIN_ADDR=0.0.0.0
     ports:
       - 8080:8080
+
+
+  spark_task_3:
+    build: spark_task_3
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_3
+      - SRC_FILE=data/age.csv
+      - TARGET_FILE=public.bank
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_3:/app/spark_task_3
+    links:
+      - postgresql:postgresql
