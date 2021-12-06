@@ -1,7 +1,12 @@
 # Скачать данные в папку data
 ```
-sudo docker-compose build download_habr_data
-sudo docker-compose up download_habr_data
+sudo docker-compose build download_bank
+sudo docker-compose up download_bank
+```
+
+# Зайти в папку spark_task_1
+```
+sudo docker build .
 ```
 
 # Запустить цеппелин
