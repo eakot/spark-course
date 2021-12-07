@@ -11,7 +11,7 @@ df = spark.read.parquet(SRC_FILE).na.drop('any')
 df.show()
 df.printSchema()
 
-url = "jdbc:postgresql://postgresql:5432/postgres"
+url = "jdbc:postgresql://postgresql:5432/postgre"
 
 (
 df
@@ -26,3 +26,23 @@ df
     .option("fetchsize", 10000)
     .save(TARGET_TABLE)
 )
+
+try:
+
+    test = spark.read\
+        .option("driver", "org.postgresql.Driver")\
+        .format("jdbc")\
+        .option("url", url)\
+        .option("user", "p_user")\
+        .option("password", "password123")\
+        .option("dbtable", TARGET_TABLE)\
+        .option("fetchsize", 10000)\
+        .load()
+
+    print("Downloaded data:")
+    test.printSchema()
+    test.show()
+
+except:
+    print("Table cannot be loaded!")
+

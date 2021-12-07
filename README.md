@@ -1,19 +1,12 @@
-# Скачать данные в папку data
+# Запустить проект:
 ```
-sudo docker-compose build download_habr_data
-sudo docker-compose up download_habr_data
-```
+sudo bash ./start.sh
 
-# Запустить цеппелин
-```
-sudo docker-compose build download
-sudo docker-compose up -d zeppelin
-```
+Данные генеряться не моментально, примерно через 10-20 секунд появяться age.csv и age_sql.csv
 
-# Зайти внутрь контейнера
-убрать CMD EXEC из Dockerfile
-сбилдить образ: sudo docker build -t task_2 .    
-запустить: sudo docker run -d task_2 sleep 300 
-узнать container_id: sudo docker ps -a    
-зайти sudo docker exec  -it 030952ced479 bash
+```
+# Остановить проект:
+```
+sudo bash ./stop.sh
 
+```

@@ -16,11 +16,12 @@ RUN --mount=type=cache,target=/root/.cache \
 
 RUN apt-get update && apt install -y wget
 
+RUN mkdir -p /spark_task_homework_sql/logs
+
 RUN cd /tmp
 RUN mkdir -p jars
 RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 RUN mv postgresql-42.3.1.jar jars/
 
 
-CMD ["spark_task_2/src/task.py"]
 ENTRYPOINT ["python3"]

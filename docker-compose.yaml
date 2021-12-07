@@ -1,14 +1,6 @@
 version: "3.9"
 
 services:
-
-  download_events:
-    build: download
-    working_dir: /data
-    volumes:
-      - ./data:/data
-    command: [ "http://37.139.43.86/data-nov" ]
-
   download_bank:
     build: download
     working_dir: /data
@@ -25,6 +17,9 @@ services:
     volumes:
       - ./data:/app/data
       - ./spark_task_1:/app/spark_task_1
+    depends_on:
+      download_bank:
+        condition: service_completed_successfully
 
   postgresql:
     image: 'bitnami/postgresql:13'
@@ -37,6 +32,12 @@ services:
       - POSTGRESQL_USERNAME=p_user
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=postgre
+    healthcheck:
+      test: pg_isready -U p_user -d postgres
+      interval: 10s
+      retries: 5
+      timeout: 5s
+    restart: always
 
   spark_task_2:
     build: spark_task_2
@@ -49,6 +50,47 @@ services:
       - ./spark_task_2:/app/spark_task_2
     links:
       - postgresql:postgresql
+    depends_on:
+      download_bank:
+        condition: service_completed_successfully
+      spark_task_1:
+        condition: service_completed_successfully
+      postgresql:
+        condition: service_healthy
+
+  spark_task_homework_spark:
+    build: spark_task_homework
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_homework
+      - SAVED_TABLE=data/age.csv
+      - TARGET_TABLE=public.bank
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_homework:/app/spark_task_homework
+      - ./logs:/spark_task_homework_spark/logs
+    command: [ "spark_task_homework/src/task.py" ]
+    links:
+      - postgresql:postgresql
+    depends_on:
+      spark_task_2:
+        condition: service_completed_successfully
+
+  spark_task_homework_sql:
+    build: spark_task_homework
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_homework
+      - SAVED_TABLE=data/age_sql.csv
+      - TARGET_TABLE=public.bank
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_homework:/app/spark_task_homework
+      - ./logs:/spark_task_homework_sql/logs
+    command: [ "spark_task_homework/src/task_sql.py" ]
+    links:
+      - postgresql:postgresql
+    depends_on:
+      spark_task_2:
+        condition: service_completed_successfully
 
   zeppelin:
     build: zeppelin
