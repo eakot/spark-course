@@ -275,9 +275,24 @@ services:
     environment:
       - SPARK_MODE=master
       - SPARK_MASTER_URL='spark://spark-master:7077'
+    volumes:
+      - ../data:/data
     ports:
       - 7077:7077
       - 8079:8080
+
+  spark-worker:
+    image: 'bitnami/spark:3.2.0'
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+    volumes:
+      - ../data:/data
+    deploy:
+      mode: replicated
+      replicas: 3
 
 volumes:
   postgres-db-volume:

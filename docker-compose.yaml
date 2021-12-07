@@ -51,6 +51,8 @@ services:
       - ./spark_task_2:/app/spark_task_2
     links:
       - postgresql:postgresql
+    entrypoint: python3
+    command: [ "spark_task_2/src/task.py" ]
 
   zeppelin:
     build: zeppelin
