@@ -1,3 +1,11 @@
+# Запустить airflow:
+```
+cd airflow
+sudo bash ./start.sh
+
+```
+
+
 # Запустить проект:
 ```
 sudo bash ./start.sh
