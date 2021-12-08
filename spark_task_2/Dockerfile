@@ -19,6 +19,7 @@ RUN cd /tmp
 RUN mkdir -p jars
 RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 RUN mv postgresql-42.3.1.jar jars/
+RUN cd /usr/lib && mkdir -p jdk
 
 
 CMD ["spark_task_2/src/task.py"]

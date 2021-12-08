@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 from src.conf import SRC_FILE, TARGET_TABLE
+from time import sleep
 
 spark = SparkSession.builder\
     .config("spark.driver.memory", "2G") \
@@ -26,3 +27,5 @@ df
     .option("fetchsize", 10000)
     .save(TARGET_TABLE)
 )
+
+sleep(300)

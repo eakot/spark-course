@@ -1,19 +1,40 @@
-# Скачать данные в папку data
+# Сбилдить и запустить базу postgres
 ```
-sudo docker-compose build download_habr_data
-sudo docker-compose up download_habr_data
-```
-
-# Запустить цеппелин
-```
-sudo docker-compose build download
-sudo docker-compose up -d zeppelin
+sudo docker-compose down
+sudo docker-compose build postgresql
+sudo docker-compose up postgresql
 ```
 
-# Зайти внутрь контейнера
-убрать CMD EXEC из Dockerfile
-сбилдить образ: sudo docker build -t task_2 .    
-запустить: sudo docker run -d task_2 sleep 300 
-узнать container_id: sudo docker ps -a    
-зайти sudo docker exec  -it 030952ced479 bash
+# Перейти в папку airflow
+```
+cd /airflow
+```
+
+# Для Линукс-систем выполнить следующие команды
+```
+mkdir -p ./dags ./logs ./plugins
+echo -e "AIRFLOW_UID=$(id -u)" > .env
+sudo chmod 777 ./dags
+sudo chmod 777 ./logs
+sudo chmod 777 ./plugins
+sudo chmod 777 ../data
+```
+
+# Сбилдить и запустить airflow
+```
+sudo docker-compose down
+sudo docker-compose build
+sudo docker-compose up
+```
+
+# Перейти в веб - интерфейс Airflow
+```
+В строке браузера localhost:8080,
+в окне авторизации user: airflow  password:airflow
+
+Искомый DAG с dag_id 'download_and_write_to_db'
+```
+
+# Результаты работы:
+в файлах parquet в папке data и в таблицах public.views_count, public.purchases_count базы данных postgres
 
