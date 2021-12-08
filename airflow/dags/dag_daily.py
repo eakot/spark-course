@@ -32,7 +32,12 @@ def agg_data(ds, **kwargs):
     filename_parquet = f'{kwargs["logical_date"].date()}'
 
     # create spark
-    spark = SparkSession.builder.config("spark.driver.memory", "2G").getOrCreate()
+    #spark = SparkSession.builder.config("spark.driver.memory", "2G").getOrCreate()
+    spark = SparkSession.builder\
+        .config("spark.driver.memory", "2G") \
+        .config("spark.jars", "/opt/airflow/jars/postgresql-42.3.1.jar") \
+        .getOrCreate()
+
 
     # schema for csv
     schema = StructType() \
@@ -77,6 +82,26 @@ def agg_data(ds, **kwargs):
     # save to parquet
     df_cat.repartition(1).write.mode("overwrite").format("parquet").save(f"/data/{filename_parquet}_cat.parquet")
     df_sale.repartition(1).write.mode("overwrite").format("parquet").save(f"/data/{filename_parquet}_sale.parquet")
+    
+    # load to PostgreSQL
+    url = "jdbc:postgresql://172.17.0.1:5432/postgre"
+    TARGET_TABLE = "public.category_table"
+
+    (
+    df_cat
+        .write
+        .option("driver", "org.postgresql.Driver")
+        .format("jdbc")
+        .mode("append")
+        .option("url", url)
+        .option("user", "p_user")
+        .option("password", "password123")
+        .option("dbtable", TARGET_TABLE)
+        .option("fetchsize", 10000)
+        .save(TARGET_TABLE)
+    )
+
+
 
 dag = airflow.DAG(
     DAGNAME,
