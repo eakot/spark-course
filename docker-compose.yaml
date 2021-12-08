@@ -2,31 +2,45 @@ version: "3.9"
 
 services:
 
-  download_events:
-    build: download
-    working_dir: /data
-    volumes:
-      - ./data:/data
-    command: [ "http://37.139.43.86/data-nov" ]
-
-  download_bank:
-    build: download
+  spark_task_0:
+    build: .
     working_dir: /data
     volumes:
       - ./data:/data
     command: [ "http://37.139.43.86/bank.csv" ]
 
   spark_task_1:
-    build: spark
+    build: .
     environment:
-      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_1
-      - SRC_FILE=data/bank.csv
-      - TARGET_FILE=data/bank.parquet
+      - PYTHONPATH=${PYTHONPATH}:/app/src
     volumes:
-      - ./data:/app/data
-      - ./spark_task_1:/app/spark_task_1
+      - ./data:/data
+      - ./src/01_csv_to_parquet:/app/src
     entrypoint: python3
-    command: ["spark_task_1/src/task.py"]
+    command: [ "/app/src/main.py",
+               "--source_csv_file=/data/bank.csv",
+               "--target_parquet_dir=data/bank.parquet" ]
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
+  spark_task_2:
+    build: .
+    volumes:
+      - ./data:/data
+      - ./src/02_parquet_to_postgres:/app/src
+    links:
+      - postgresql:postgresql
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--source_parquet_file=/data/bank.parquet",
+               "--target_tablename=public.bank",
+               "--url=jdbc:postgresql://postgresql:5432/postgres",
+               "--login=p_user",
+               "--password=password123" ]
+    depends_on:
+      postgresql:
+        condition: service_healthy
 
   postgresql:
     image: 'bitnami/postgresql:13'
@@ -38,21 +52,11 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
       - POSTGRESQL_USERNAME=p_user
       - POSTGRESQL_PASSWORD=password123
-      - POSTGRESQL_DATABASE=postgre
-
-  spark_task_2:
-    build: spark
-    environment:
-      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_2
-      - SRC_FILE=data/bank.parquet
-      - TARGET_TABLE=public.bank
-    volumes:
-      - ./data:/app/data
-      - ./spark_task_2:/app/spark_task_2
-    links:
-      - postgresql:postgresql
-    entrypoint: python3
-    command: [ "spark_task_2/src/task.py" ]
+      - POSTGRESQL_DATABASE=postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "airflow" ]
+      interval: 5s
+      retries: 5
 
   zeppelin:
     build: zeppelin
@@ -64,7 +68,6 @@ services:
       - ZEPPELIN_ADDR=0.0.0.0
     ports:
       - 8080:8080
-
 
   spark-master:
     image: 'bitnami/spark:3.2.0'
@@ -89,7 +92,6 @@ services:
       replicas: 1
     networks:
       - spark-course
-
 
 networks:
   spark-course:

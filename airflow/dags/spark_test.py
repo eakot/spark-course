@@ -15,8 +15,17 @@ with DAG(
         conn_id='spark_local',
         application=f'/opt/airflow/dags/spark_scripts/test.py',
         name='spark_test_task_app',
-        execution_timeout=timedelta(minutes=2),
-        dag=dag
+        execution_timeout=timedelta(minutes=2)
     )
 
-    spark_test_task
+    # noinspection PyStubPackagesCompatibility
+    test_postgres_connection_task = SparkSubmitOperator(
+        task_id="test_postgres_connection",
+        conn_id='spark_local',
+        application=f'/opt/airflow/dags/spark_scripts/test_postgres_connection.py',
+        name='spark_test_task_app',
+        execution_timeout=timedelta(minutes=2),
+        packages='org.postgresql:postgresql:42.2.24'
+    )
+
+    spark_test_task >> test_postgres_connection_task
