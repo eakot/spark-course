@@ -54,6 +54,21 @@ services:
     entrypoint: python3
     command: [ "spark_task_2/src/task.py" ]
 
+  spark_task_3:
+    build: spark
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_3
+      - SRC_TABLE=public.bank
+      - TARGET_FILE=data/age.parquet
+      - EXPLAIN_INFO_FILE=data/explain.txt
+    volumes:
+      - ./data:/app/data
+      - ./spark_task_3:/app/spark_task_3
+    links:
+      - postgresql:postgresql
+    entrypoint: python3
+    command: [ "spark_task_3/src/task.py" ]
+
   zeppelin:
     build: zeppelin
     volumes:
