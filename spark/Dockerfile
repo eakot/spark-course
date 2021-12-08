@@ -11,12 +11,12 @@ RUN mkdir -p logs
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache \
     pip install -r requirements.txt
-RUN apt-get update && apt install -y wget
 
+RUN apt-get update && apt install -y wget
 RUN cd /tmp
 RUN mkdir -p jars
 RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 RUN mv postgresql-42.3.1.jar jars/
 
-CMD ["age_distr/src/job.py"]
+CMD ["spark_task_3/src/task.py"]
 ENTRYPOINT ["python3"]
