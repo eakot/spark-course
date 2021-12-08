@@ -10,7 +10,7 @@ COPY --from=py3 / /
 WORKDIR /app
 
 # install python requirements
-COPY spark/requirements.txt .
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # install wget and download jars for spark

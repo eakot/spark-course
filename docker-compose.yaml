@@ -21,7 +21,7 @@ services:
                "--source_csv_file=/data/bank.csv",
                "--target_parquet_dir=data/bank.parquet" ]
     depends_on:
-      postgres:
+      postgresql:
         condition: service_healthy
 
   spark_task_2:
@@ -38,6 +38,9 @@ services:
                "--url=jdbc:postgresql://postgresql:5432/postgres",
                "--login=p_user",
                "--password=password123" ]
+    depends_on:
+      postgresql:
+        condition: service_healthy
 
   postgresql:
     image: 'bitnami/postgresql:13'
@@ -49,7 +52,7 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
       - POSTGRESQL_USERNAME=p_user
       - POSTGRESQL_PASSWORD=password123
-      - POSTGRESQL_DATABASE=postgre
+      - POSTGRESQL_DATABASE=postgres
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "airflow" ]
       interval: 5s
