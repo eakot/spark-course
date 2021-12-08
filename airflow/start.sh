@@ -1,5 +1,19 @@
 # launch project
 sudo docker-compose down
+cd ..
+sudo docker-compose down
+
+# CREATE FOLDERS FOR POSTGRE
+sudo rm -rf ./services
+mkdir -p ./services/postgresql
+sudo chmod +777 -R ./services
+
+# START POSTGRE
+sudo docker-compose up -d postgresql
+
+
+# CREATE FOLDERS FOR AIRFLOW
+cd airflow
 
 # remove data to avoid conflicts
 sudo rm .env
