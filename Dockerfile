@@ -7,16 +7,18 @@ FROM openjdk:${OPENJDK_VERSION}-${IMAGE_VARIANT}
 
 COPY --from=py3 / /
 WORKDIR /app
-RUN mkdir -p logs
-COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache \
-    pip install -r requirements.txt
 
+# Install Python requirements
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Create logs directory
+RUN mkdir -p logs
+
+# Install wget and download jars for Spark
 RUN apt-get update && apt install -y wget
-RUN cd /tmp
 RUN mkdir -p jars
 RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 RUN mv postgresql-42.3.1.jar jars/
 
-CMD ["spark_task_3/src/task.py"]
 ENTRYPOINT ["python3"]

@@ -2,19 +2,86 @@ version: '3.9'
 
 services:
 
-  # download_events:
-  #   build: download
-  #   working_dir: /data
-  #   volumes:
-  #     - ./data:/data
-  #   command: [ "http://37.139.43.86/data-nov" ]
-
-  download_bank:
-    build: download
+  spark_task_0:
+    build: .
     working_dir: /data
     volumes:
       - ./data:/data
+    entrypoint: wget
     command: [ "http://37.139.43.86/bank.csv" ]
+
+  spark_task_1:
+    build: .
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:/app/src
+    volumes:
+      - ./data:/data
+      - ./src/01_csv_to_parquet:/app/src
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--source_csv_file=/data/bank.csv",
+               "--target_parquet_dir=/data/bank.parquet" ]
+    depends_on:
+      spark_task_0:
+        condition: service_completed_successfully
+
+  postgresql:
+    image: 'bitnami/postgresql:13'
+    ports:
+      - 5432:5432
+    volumes:
+      - './services/postgresql:/bitnami/postgresql'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_USERNAME=p_user
+      - POSTGRESQL_PASSWORD=password123
+      - POSTGRESQL_DATABASE=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U p_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  spark_task_2:
+    build: .
+    volumes:
+      - ./data:/data
+      - ./src/02_parquet_to_postgres:/app/src
+    links:
+      - postgresql:postgresql
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--source_parquet_dir=/data/bank.parquet",
+               "--target_tablename=public.bank",
+               "--url=jdbc:postgresql://postgresql:5432/postgres",
+               "--login=p_user",
+               "--password=password123" ]
+    depends_on:
+      spark_task_1:
+        condition: service_completed_successfully
+      postgresql:
+        condition: service_healthy
+
+  spark_task_3:
+    build: .
+    volumes:
+      - ./data:/data
+      - ./src/03_postgres_to_csv:/app/src
+      - ./logs:/app/logs
+    links:
+      - postgresql:postgresql
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--source_tablename=public.bank",
+               "--target_csv_dir=/data/bank_ages.csv",
+               "--url=jdbc:postgresql://postgresql:5432/postgres",
+               "--login=p_user",
+               "--password=password123" ]
+    depends_on:
+      spark_task_2:
+        condition: service_completed_successfully
+      postgresql:
+        condition: service_healthy
 
 #   spark-master:
 #     image: 'bitnami:/spark:3.2.0'
@@ -42,74 +109,3 @@ services:
 
 # networks:
 #   spark-course:
-
-  spark_task_1:
-    build: spark
-    environment:
-      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_1
-      - SRC_FILE=data/bank.csv
-      - TARGET_FILE=data/bank.parquet
-    volumes:
-      - ./data:/app/data
-      - ./spark_task_1:/app/spark_task_1
-    entrypoint: python3
-    command: [ "spark_task_1/src/task.py" ]
-    depends_on:
-      download_bank:
-        condition: service_completed_successfully
-
-  postgresql:
-    image: 'bitnami/postgresql:13'
-    ports:
-      - 5432:5432
-    volumes:
-      - './services/postgresql:/bitnami/postgresql'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-      - POSTGRESQL_USERNAME=p_user
-      - POSTGRESQL_PASSWORD=password123
-      - POSTGRESQL_DATABASE=postgre
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U p_user"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  spark_task_2:
-    build: spark
-    depends_on:
-      spark_task_1:
-        condition: service_completed_successfully
-      postgresql:
-        condition: service_healthy
-    environment:
-      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_2
-      - SRC_FILE=data/bank.parquet
-      - TARGET_TABLE=public.bank
-    volumes:
-      - ./data:/app/data
-      - ./spark_task_2:/app/spark_task_2
-    links:
-      - postgresql:postgresql
-    entrypoint: python3
-    command: [ "spark_task_2/src/task.py" ]
-
-  spark_task_3:
-    build: spark
-    depends_on:
-      spark_task_2:
-        condition: service_completed_successfully
-      postgresql:
-        condition: service_healthy
-    environment:
-      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_3
-      - SRC_TABLE=public.bank
-      - TARGET_FILE=data/spark_task_3.csv
-    volumes:
-      - ./data:/app/data
-      - ./spark_task_3:/app/spark_task_3
-      - ./logs:/app/logs
-    links:
-      - postgresql:postgresql
-    entrypoint: python3
-    command: [ "spark_task_3/src/task.py" ]

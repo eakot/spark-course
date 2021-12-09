@@ -11,9 +11,20 @@ sudo docker-compose up -d zeppelin
 ```
 
 # Зайти внутрь контейнера
-убрать CMD EXEC из Dockerfile
-сбилдить образ: sudo docker build -t task_2 .    
-запустить: sudo docker run -d task_2 sleep 300 
-узнать container_id: sudo docker ps -a    
-зайти sudo docker exec  -it 030952ced479 bash
-
+1. убрать CMD EXEC из Dockerfile  
+2. сбилдить образ: 
+```
+sudo docker build -t task_2 .  
+```  
+3. запустить: 
+```
+sudo docker run -d task_2 sleep 300 
+```
+4. узнать container_id: 
+```
+sudo docker ps -a
+```
+5. зайти:
+```
+sudo docker exec  -it 030952ced479 bash
+```
