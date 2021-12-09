@@ -5,6 +5,7 @@ __pycache__/
 
 data/
 services/
+logs/
 
 # C extensions
 *.so

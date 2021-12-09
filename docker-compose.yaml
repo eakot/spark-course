@@ -14,7 +14,7 @@ services:
     working_dir: /data
     volumes:
       - ./data:/data
-#    command: [ "http://37.139.43.86/bank.csv" ]
+    command: [ "http://37.139.43.86/bank.csv" ]
 
   spark_task_1:
     build: spark

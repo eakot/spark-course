@@ -5,7 +5,7 @@ RUN apt-get update
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 RUN apt update -y && apt-get install -y software-properties-common && \
     apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main' && apt update -y && \
-    apt-get install -y openjdk-8-jdk-headless && \
+    apt-get install -y openssl wget && apt-get install -y openjdk-8-jdk-headless && \
     export JAVA_HOME && \
     apt-get clean
 
