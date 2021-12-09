@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  zeppelin:
+    build: .
+    volumes:
+      - ./data:/data
+      - ./notebook:/zeppelin/notebook
+      - ./conf:/zeppelin/conf
+    ports:
+      - 8081:8080
