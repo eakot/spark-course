@@ -11,6 +11,7 @@ foreach ($folder in $folders) {
     icacls $folder /grant *S-1-1-0:F /T
 }
 
+# TODO: add soft-run powershell script
 # Up Spark
 docker-compose build
 docker-compose up -d spark-master
