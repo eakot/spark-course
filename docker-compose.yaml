@@ -20,7 +20,7 @@ services:
     entrypoint: python3
     command: [ "/app/src/main.py",
                "--source_csv_file=/data/bank.csv",
-               "--target_parquet_dir=data/bank.parquet" ]
+               "--target_parquet_dir=/data/bank.parquet" ]
     depends_on:
       postgresql:
         condition: service_healthy
@@ -60,16 +60,22 @@ services:
       retries: 5
 
   spark_task_3:
-    build: spark_task_3
-    environment:
-      - PYTHONPATH=${PYTHONPATH}:/app/spark_task_3
-      - TARGET_TABLE=public.bank
-      - OUTPUT_FILE=data/bank_age.parquet
+    build: .
     volumes:
-      - ./data:/app/data
-      - ./spark_task_3:/app/spark_task_3
+      - ./data:/data
+      - ./src/03_aggregation_from_postgres:/app/src
     links:
       - postgresql:postgresql
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--output_file=/data/bank_age.parquet",
+               "--source_table=public.bank",
+               "--url=jdbc:postgresql://postgresql:5432/postgres",
+               "--login=p_user",
+               "--password=password123" ]
+    depends_on:
+      postgresql:
+        condition: service_healthy
 
   zeppelin:
     build: zeppelin
