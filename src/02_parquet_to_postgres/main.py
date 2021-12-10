@@ -27,7 +27,6 @@ def parquet_to_postgres(source_parquet_file, target_tablename, url, login, passw
     )
 
 
-
 if __name__ == '__main__':
     fire.Fire(parquet_to_postgres)
 

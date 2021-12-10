@@ -5,6 +5,14 @@ import pyspark.sql.functions as f
 spark = SparkSession.builder \
     .getOrCreate()
 
+# write to airflow-postgres database
+# .option("url", "jdbc:postgresql://airflow-postgres:5432/airflow")
+# .option("user", "airflow")
+# .option("password", "airflow")
+# .option("dbtable", "public.aa_bank")
+
+
+# On Linux change host.docker.internal  >> 172.17.0.1
 df = spark.read.parquet("/data/bank.parquet")
 (
     df
