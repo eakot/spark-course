@@ -37,7 +37,7 @@ services:
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U p_user"]
+      test: ["CMD-SHELL", "pg_isready -U p_user"]  # For src
       interval: 10s
       timeout: 5s
       retries: 10

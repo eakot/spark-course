@@ -5,8 +5,8 @@
             "server": "localhost",
             "port": 5432,
             "driver": "PostgreSQL",
-            "name": "spark",
-            "database": "postgre",
+            "name": "spark_local",
+            "database": "postgres",
             "username": "p_user",
             "password": "password123"
         }
