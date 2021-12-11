@@ -14,6 +14,8 @@ foreach ($folder in $folders) {
 # TODO: add soft-run powershell script
 # Up Spark
 docker-compose build
+docker-compose up -d jupyter
+Start-Sleep -Seconds 5
 docker-compose up -d spark-master
 Start-Sleep -Seconds 5
 docker-compose up -d spark-worker
