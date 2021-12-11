@@ -3,7 +3,7 @@ version: "3.9"
 services:
 
   spark_task_0:
-    build: .
+    build: download
     working_dir: /data
     volumes:
       - ./data:/data
@@ -42,6 +42,24 @@ services:
       postgresql:
         condition: service_healthy
 
+  spark_task_3:
+    build: .
+    volumes:
+      - ./data:/data
+      - ./src/03_posgres_to_csv:/app/src
+    links:
+      - postgresql:postgresql
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--target_csv_file=/data/age.csv",
+               "--source_tablename=public.bank",
+               "--url=jdbc:postgresql://postgresql:5432/postgres",
+               "--login=p_user",
+               "--password=password123" ]
+    depends_on:
+      postgresql:
+        condition: service_healthy
+
   postgresql:
     image: 'bitnami/postgresql:13'
     ports:
@@ -54,7 +72,7 @@ services:
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=postgres
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "airflow" ]
+      test: [ "CMD", "pg_isready", "-U", "p_user" ]
       interval: 5s
       retries: 5
 
@@ -70,7 +88,7 @@ services:
       - 8080:8080
 
   spark-master:
-    image: 'bitnami/spark:3.2.0'
+    image: 'bitnami/spark:3.2.0-debian-10-r41'
     environment:
       - SPARK_MODE=master
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -81,7 +99,7 @@ services:
       - spark-course
 
   spark-worker:
-    image: 'bitnami/spark:3.2.0'
+    image: 'bitnami/spark:3.2.0-debian-10-r41'
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077

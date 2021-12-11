@@ -62,6 +62,7 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    - ./spark/jars:/jars:z
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -72,7 +73,7 @@ x-airflow-common:
 
 services:
   airflow-postgres:
-    image: postgres:13
+    image: 'bitnami/postgresql:13'
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -119,20 +120,6 @@ services:
     command: scheduler
     healthcheck:
       test: [ "CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"' ]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-    restart: always
-    depends_on:
-      <<: *airflow-common-depends-on
-      airflow-init:
-        condition: service_completed_successfully
-
-  airflow-triggerer:
-    <<: *airflow-common
-    command: triggerer
-    healthcheck:
-      test: [ "CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"' ]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -221,19 +208,19 @@ services:
 
 
   spark-master:
-    image: 'bitnami/spark:3.2.0'
+    image: 'bitnami/spark:3.2.0-debian-10-r41'
 #    build: spark
     environment:
       - SPARK_MODE=master
-      - SPARK_MASTER_URL='spark://spark-master:7077'
     volumes:
       - ../data:/data
+      - ./spark/jars:/jars:z
     ports:
       - 7077:7077
       - 8079:8080
 
   spark-worker:
-    image: 'bitnami/spark:3.2.0'
+    image: 'bitnami/spark:3.2.0-debian-10-r41'
 #    build: spark
     environment:
       - SPARK_MODE=worker
@@ -242,6 +229,7 @@ services:
       - SPARK_WORKER_CORES=1
     volumes:
       - ../data:/data
+      - ./spark/jars:/jars:z
     deploy:
       mode: replicated
       replicas: 1

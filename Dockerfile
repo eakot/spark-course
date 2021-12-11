@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:experimental
 ARG IMAGE_VARIANT=slim-buster
 ARG OPENJDK_VERSION=11
 ARG PYTHON_VERSION=3.9.5
@@ -16,6 +17,7 @@ RUN pip install -r requirements.txt
 # install wget and download jars for spark
 RUN apt-get update && apt install -y wget
 
+#RUN cd /tmp
 RUN mkdir -p jars
 RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 RUN mv postgresql-42.3.1.jar jars/

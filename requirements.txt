@@ -1,2 +1,4 @@
 pyspark==3.2.0
 loguru
+plyvel
+fire~=0.4.0
