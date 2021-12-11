@@ -23,8 +23,9 @@ with DAG(
         application=f'/opt/airflow/dags/spark_scripts/aggregates/aggregates.py',
         application_args=['--source_filename={{ ds }}'],
         name='aggregates_spark_app',
-        execution_timeout=timedelta(minutes=2),
+        execution_timeout=timedelta(minutes=10),
         packages='org.postgresql:postgresql:42.2.24'
     )
 
     download >> aggregates
+    
