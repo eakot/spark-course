@@ -20,5 +20,3 @@ RUN apt-get update && apt install -y wget
 RUN mkdir -p jars
 RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 RUN mv postgresql-42.3.1.jar jars/
-
-ENTRYPOINT ["python3"]
