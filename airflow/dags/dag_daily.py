@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 
 from airflow import DAG
@@ -18,5 +17,3 @@ with DAG(
         task_id='run_after_loop',
         bash_command='cd /data; wget http://37.139.43.86/events/{{ ds }}',
     )
-
-    download
