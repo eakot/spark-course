@@ -2,22 +2,36 @@ import fire
 from pyspark.sql import SparkSession
 
 
-def csv_to_parquet(source_csv_file, target_parquet_dir):
+def csv_to_parquet(source_csv_file: str, target_parquet_dir: str) -> None:
     """
-    First task on spark (after source data downloaded) is
-    to read the csv file and write the data in parquet format.
+    First Spark's task (except for downloading data) which reads
+    the csv file and writes the data to parquet format.
     """
-    spark = SparkSession.builder \
-        .appName("parquet_to_postgres") \
+    spark = (SparkSession.builder
+        .appName('csv_to_parquet')
         .getOrCreate()
+    )
 
-    df = spark.read \
-        .option("sep", ";") \
-        .option("header", "true") \
-        .option("inferSchema", "true") \
-        .csv(source_csv_file)
+    # Extract
+    df = (spark.read
+        .format('csv')
+        .option('sep', ';')
+        .option('header', 'true')
+        .option('inferSchema', 'true')
+        .load(source_csv_file)
+    )
 
-    df.repartition(1).write.mode("overwrite").format("parquet").save(target_parquet_dir)
+    # Load
+    (df
+        .repartition(1)
+
+        .write
+        .mode('overwrite')
+        .format('parquet')
+        .save(target_parquet_dir)
+    )
+
+    spark.stop()
 
 
 if __name__ == '__main__':

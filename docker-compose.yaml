@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
 
@@ -7,8 +7,8 @@ services:
     working_dir: /data
     volumes:
       - ./data:/data
+    entrypoint: wget
     command: [ "http://37.139.43.86/bank.csv" ]
-    entrypoint: ["wget"]
 
   spark_task_1:
     build: .
@@ -20,28 +20,10 @@ services:
     entrypoint: python3
     command: [ "/app/src/main.py",
                "--source_csv_file=/data/bank.csv",
-               "--target_parquet_dir=data/bank.parquet" ]
+               "--target_parquet_dir=/data/bank.parquet" ]
     depends_on:
-      postgresql:
-        condition: service_healthy
-
-  spark_task_2:
-    build: .
-    volumes:
-      - ./data:/data
-      - ./src/02_parquet_to_postgres:/app/src
-    links:
-      - postgresql:postgresql
-    entrypoint: python3
-    command: [ "/app/src/main.py",
-               "--source_parquet_file=/data/bank.parquet",
-               "--target_tablename=public.bank",
-               "--url=jdbc:postgresql://postgresql:5432/postgres",
-               "--login=p_user",
-               "--password=password123" ]
-    depends_on:
-      postgresql:
-        condition: service_healthy
+      spark_task_0:
+        condition: service_completed_successfully
 
   postgresql:
     image: 'bitnami/postgresql:13'
@@ -55,20 +37,51 @@ services:
       - POSTGRESQL_PASSWORD=password123
       - POSTGRESQL_DATABASE=postgres
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "airflow" ]
-      interval: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U p_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
-  zeppelin:
-    build: zeppelin
+  spark_task_2:
+    build: .
     volumes:
       - ./data:/data
-      - ./zeppelin/notebook:/zeppelin/notebook
-      - ./zeppelin/conf:/zeppelin/conf
-    environment:
-      - ZEPPELIN_ADDR=0.0.0.0
-    ports:
-      - 8080:8080
+      - ./src/02_parquet_to_postgres:/app/src
+    links:
+      - postgresql:postgresql
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--source_parquet_dir=/data/bank.parquet",
+               "--target_tablename=public.bank",
+               "--url=jdbc:postgresql://postgresql:5432/postgres",
+               "--login=p_user",
+               "--password=password123" ]
+    depends_on:
+      spark_task_1:
+        condition: service_completed_successfully
+      postgresql:
+        condition: service_healthy
+
+  spark_task_3:
+    build: .
+    volumes:
+      - ./data:/data
+      - ./src/03_postgres_to_csv:/app/src
+      - ./logs:/app/logs
+    links:
+      - postgresql:postgresql
+    entrypoint: python3
+    command: [ "/app/src/main.py",
+               "--source_tablename=public.bank",
+               "--target_csv_dir=/data/bank_ages.csv",
+               "--url=jdbc:postgresql://postgresql:5432/postgres",
+               "--login=p_user",
+               "--password=password123" ]
+    depends_on:
+      spark_task_2:
+        condition: service_completed_successfully
+      postgresql:
+        condition: service_healthy
 
   spark-master:
     image: 'bitnami/spark:3.2.0'
@@ -78,8 +91,6 @@ services:
     ports:
       - 7077:7077
       - 8079:8080
-    networks:
-      - spark-course
 
   spark-worker:
     image: 'bitnami/spark:3.2.0'
@@ -91,8 +102,3 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    networks:
-      - spark-course
-
-networks:
-  spark-course:

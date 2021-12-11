@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 
 from airflow import DAG
@@ -18,12 +17,11 @@ with DAG(
         execution_timeout=timedelta(minutes=2)
     )
 
-    # noinspection PyStubPackagesCompatibility
     test_postgres_connection_task = SparkSubmitOperator(
-        task_id="test_postgres_connection",
+        task_id='test_postgres_connection',
         conn_id='spark_local',
         application=f'/opt/airflow/dags/spark_scripts/test_postgres_connection.py',
-        name='spark_test_task_app',
+        name='test_postgres_connection_app',
         execution_timeout=timedelta(minutes=2),
         packages='org.postgresql:postgresql:42.2.24'
     )

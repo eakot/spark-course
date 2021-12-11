@@ -3,8 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Spark + Airflow contents
 data/
 services/
+logs/
+airflow/logs/
+airflow/plugins/
+
+# VSCode settings
+.vscode/
 
 # C extensions
 *.so

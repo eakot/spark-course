@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 
 from airflow import DAG
@@ -11,12 +10,14 @@ with DAG(
     catchup=True,
     dagrun_timeout=timedelta(minutes=60),
     tags=['lecture 7'],
-    params={"example_key": "example_value"},
+    params={
+        'example_key': 'example_value'
+    }
 ) as dag:
 
     download = BashOperator(
         task_id='run_after_loop',
-        bash_command='cd /data; wget http://37.139.43.86/events/{{ ds }}',
+        bash_command='cd /data; wget http://37.139.43.86/events/{{ ds }}'
     )
 
     download

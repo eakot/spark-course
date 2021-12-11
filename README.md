@@ -1,19 +1,34 @@
-# Скачать данные в папку data
+# Гуйд
+
+## Зайти внутрь контейнера
+1. Убрать CMD EXEC из Dockerfile  
+2. Сбилдить образ: 
 ```
-sudo docker-compose build download_habr_data
-sudo docker-compose up download_habr_data
+sudo docker build -t task_2 .  
+```  
+3. Запустить: 
+```
+sudo docker run -d task_2 sleep 300 
+```
+4. Узнать container_id: 
+```
+sudo docker ps -a
+```
+5. Зайти:
+```
+sudo docker exec -it 030952ced479 bash
 ```
 
-# Запустить цеппелин
+## Запуск спарк-тасок по загрузке и трансформации данных
+1. В *powershell*:
 ```
-sudo docker-compose build download
-sudo docker-compose up -d zeppelin
+run
 ```
-
-# Зайти внутрь контейнера
-убрать CMD EXEC из Dockerfile
-сбилдить образ: sudo docker build -t task_2 .    
-запустить: sudo docker run -d task_2 sleep 300 
-узнать container_id: sudo docker ps -a    
-зайти sudo docker exec  -it 030952ced479 bash
-
+2. После того, как таски отработали, можно остановить postgresql + удалить контейнеры и скаченные данные:
+```
+stop_hard
+```
+3. Либо остановить postgresql, оставить контейнеры и данные:
+```
+stop_soft
+```
