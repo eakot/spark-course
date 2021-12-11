@@ -22,10 +22,9 @@ with DAG(
 spark_test_task = SparkSubmitOperator(
     task_id='spark_test_task_hw',
     conn_id='spark_local',
-    application='/opt/airflow/dags/spark_scripts/hw_task.py',
+    application=f'/opt/airflow/dags/spark_scripts/hw_task.py --load_data={load_data}',
     name='spark_test_task_app_hw',
-    execution_timeout=timedelta(minutes=5),
-    application_args=[f"--load_data={load_data}"]
+    execution_timeout=timedelta(minutes=2)
 )
 
 download_task >> spark_test_task
