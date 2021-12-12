@@ -2,7 +2,7 @@
 docker-compose down
 
 # Remove unused volumes
-docker volume prune
+docker volume prune -f
 
 # Remove data
 $folders = 'data', 'logs', 'services'
