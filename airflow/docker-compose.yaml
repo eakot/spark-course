@@ -237,9 +237,12 @@ services:
       - SPARK_MASTER_URL='spark://spark-master:7077'
     volumes:
       - ../data:/data
+      - ./spark-conf/spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
+      - ./spark-events:/opt/bitnami/spark/spark-events
     ports:
       - 7077:7077
       - 8079:8080
+      - 4039:4040
 
   spark-worker:
     image: 'bitnami/spark:3.2.0'
@@ -252,7 +255,7 @@ services:
       - ../data:/data
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 2
 
 volumes:
   postgres-db-volume:

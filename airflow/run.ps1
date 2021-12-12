@@ -2,7 +2,7 @@
 docker-compose down
 
 # Remove data to avoid conflicts
-$folders = 'logs', 'plugins'
+$folders = 'logs', 'plugins', 'spark-events'
 foreach ($folder in $folders) {
     if (Test-Path -Path $folder) {
         Remove-Item -Recurse -Force $folder

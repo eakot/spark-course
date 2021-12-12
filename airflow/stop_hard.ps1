@@ -2,10 +2,10 @@
 docker-compose down
 
 # Remove unused volumes
-docker volume prune
+docker volume prune -f
 
 # Remove data
-$folders = 'logs', 'plugins'
+$folders = 'logs', 'plugins', 'spark-events'
 foreach ($folder in $folders) {
     if (Test-Path -Path $folder) {
         Remove-Item -Recurse -Force $folder
