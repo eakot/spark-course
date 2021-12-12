@@ -17,3 +17,8 @@ RUN --mount=type=cache,target=/root/.cache \
 
 RUN --mount=type=cache,target=/root/.cache \
     pip install --no-cache-dir plyvel loguru
+
+RUN cd /tmp
+RUN mkdir -p jars
+RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
+RUN mv postgresql-42.3.1.jar jars/

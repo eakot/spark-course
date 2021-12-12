@@ -20,7 +20,7 @@ services:
     entrypoint: python3
     command: [ "/app/src/main.py",
                "--source_csv_file=/data/bank.csv",
-               "--target_parquet_dir=data/bank.parquet" ]
+               "--target_parquet_dir=/data/bank.parquet" ]
     depends_on:
       postgresql:
         condition: service_healthy

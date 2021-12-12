@@ -62,6 +62,7 @@ x-airflow-common:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    - ./jars:/jars:z
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -81,6 +82,7 @@ services:
       - 5433:5432
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+      - ./jars:/jars:z
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "airflow" ]
       interval: 5s
@@ -218,6 +220,7 @@ services:
     user: "0:0"
     volumes:
       - .:/sources
+      - ./jars:/jars:z
 
 
   spark-master:
@@ -228,6 +231,7 @@ services:
       - SPARK_MASTER_URL='spark://spark-master:7077'
     volumes:
       - ../data:/data
+      - ./jars:/jars:z
     ports:
       - 7077:7077
       - 8079:8080
@@ -242,6 +246,7 @@ services:
       - SPARK_WORKER_CORES=1
     volumes:
       - ../data:/data
+      - ./jars:/jars:z
     deploy:
       mode: replicated
       replicas: 1

@@ -25,7 +25,9 @@ with DAG(
         application=f'/opt/airflow/dags/spark_scripts/test_postgres_connection.py',
         name='spark_test_task_app',
         execution_timeout=timedelta(minutes=2),
-        packages='org.postgresql:postgresql:42.2.24'
+        #packages='org.postgresql:postgresql:42.2.24'
+        jars='/jars/postgresql-42.3.1.jar',
+        driver_class_path='/jars/postgresql-42.3.1.jar'
     )
 
     spark_test_task >> test_postgres_connection_task
