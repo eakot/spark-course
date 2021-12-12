@@ -1,34 +1,28 @@
-# Гуйд
-
-## Зайти внутрь контейнера
-1. Убрать CMD EXEC из Dockerfile  
-2. Сбилдить образ: 
+# Скачать данные в папку data
 ```
-sudo docker build -t task_2 .  
-```  
-3. Запустить: 
-```
-sudo docker run -d task_2 sleep 300 
-```
-4. Узнать container_id: 
-```
-sudo docker ps -a
-```
-5. Зайти:
-```
-sudo docker exec -it 030952ced479 bash
+mkdir -p ./dags ./logs ./plugins
+echo -e "AIRFLOW_UID=$(id -u)" > .env
+sudo chmod 777 ./dags
+sudo chmod 777 ./logs
+sudo chmod 777 ./plugins
+sudo chmod 777 ../data
 ```
 
-## Запуск спарк-тасок по загрузке и трансформации данных
-1. В *powershell*:
+# Сбилдить и запустить airflow
 ```
-run
+sudo docker-compose down
+sudo docker-compose build
+sudo docker-compose up
 ```
-2. После того, как таски отработали, можно остановить postgresql + удалить контейнеры и скаченные данные:
+
+# Перейти в веб - интерфейс Airflow
 ```
-stop_hard
+В строке браузера localhost:8080,
+в окне авторизации user: airflow  password:airflow
+
+Искомый DAG с dag_id 'download_and_write_to_db'
 ```
-3. Либо остановить postgresql, оставить контейнеры и данные:
-```
-stop_soft
-```
+
+# Результаты работы:
+в файлах parquet в папке data и в таблицах public.views_count, public.purchases_count базы данных postgres
+
