@@ -17,3 +17,7 @@ RUN --mount=type=cache,target=/root/.cache \
 
 RUN --mount=type=cache,target=/root/.cache \
     pip install --no-cache-dir plyvel loguru
+
+RUN --mount=type=cache,target=/root/.cache \
+    pip install --no-cache-dir fire
+
