@@ -8,7 +8,7 @@ services:
     volumes:
       - ./data:/data
     entrypoint: wget
-    command: [ "http://37.139.43.86/bank.csv" ]
+    command: [ "-nc", "http://37.139.43.86/bank.csv" ]
 
   spark_task_1:
     build: .
@@ -62,26 +62,6 @@ services:
       postgresql:
         condition: service_healthy
 
-  spark_task_3:
-    build: .
-    volumes:
-      - ./data:/data
-      - ./src/03_postgres_to_csv:/app/src
-      - ./logs:/app/logs
-    links:
-      - postgresql:postgresql
-    entrypoint: python3
-    command: [ "/app/src/main.py",
-               "--source_tablename=public.bank",
-               "--target_csv_dir=/data/bank_ages.csv",
-               "--url=jdbc:postgresql://postgresql:5432/postgres",
-               "--login=p_user",
-               "--password=password123" ]
-    depends_on:
-      spark_task_2:
-        condition: service_completed_successfully
-      postgresql:
-        condition: service_healthy
 
   spark-master:
     image: 'bitnami/spark:3.2.0'
@@ -102,3 +82,4 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+
