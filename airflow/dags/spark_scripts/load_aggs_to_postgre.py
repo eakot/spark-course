@@ -1,11 +1,7 @@
-import sys
+import fire
 import pyspark.sql.functions as f
 from pyspark.sql import SparkSession
 from datetime import datetime
-
-
-def col_filter(col_name, pattern):
-    return f.lower(f.col(col_name)).like(f"%{pattern}%")
 
 
 def load_to_postgres(df_to_load, dbtable):
@@ -25,43 +21,46 @@ def load_to_postgres(df_to_load, dbtable):
     )
 
 
-load_date = sys.argv[1]
-source_file = f"/data/{load_date}"
+def events_to_agg(df, event_type, group_by):
+    agg_col_name = f"{event_type}_count"
+    return df \
+        .where(f.lower(f.col("event_type")).like(f"%{event_type}%")) \
+        .groupBy(*group_by) \
+        .agg(f.count("*").alias(agg_col_name)) \
+        .orderBy(f.col(agg_col_name).desc())
 
-spark = SparkSession.builder \
-        .getOrCreate()
 
-schema = "date string, " \
-        "event_type string, " \
-        "product_id long, " \
-        "category_id long, " \
-        "category_code string, " \
-        "brand string, " \
-        "price float, " \
-        "user_id long, " \
-        "user_session string"
+def events_to_agg_to_postgres(load_date):
+    source_file = f"/data/{load_date}"
 
-initial_df = spark.read \
-        .option("sep", ",") \
-        .option("header", "false") \
-        .option("enforceSchema", "true") \
-        .schema(schema) \
-        .csv(source_file)
+    spark = SparkSession.builder \
+            .getOrCreate()
 
-agg_view_by_category_df = initial_df \
-    .where(col_filter("event_type", "view")) \
-    .groupBy("date", "category_code") \
-    .agg(f.count("*").alias("view_count")) \
-    .orderBy(f.col("view_count").desc())
+    schema = "date string, " \
+            "event_type string, " \
+            "product_id long, " \
+            "category_id long, " \
+            "category_code string, " \
+            "brand string, " \
+            "price float, " \
+            "user_id long, " \
+            "user_session string"
 
-load_to_postgres(agg_view_by_category_df, "public.view_by_category")
+    events_df = spark.read \
+            .option("sep", ",") \
+            .option("header", "false") \
+            .option("enforceSchema", "true") \
+            .schema(schema) \
+            .csv(source_file)
 
-agg_purchase_by_brand = initial_df \
-    .where(col_filter("event_type", "purchase")) \
-    .groupBy("date", "brand") \
-    .agg(f.count("*").alias("purchase_count")) \
-    .orderBy(f.col("purchase_count").desc())
+    agg_view_by_category_df = events_to_agg(events_df, "view", ["date", "category_code"])
+    load_to_postgres(agg_view_by_category_df, "public.view_by_category")
 
-load_to_postgres(agg_purchase_by_brand, "public.purchase_by_brand")
+    agg_purchase_by_brand_df = events_to_agg(events_df, "purchase", ["date", "brand"])
+    load_to_postgres(agg_purchase_by_brand_df, "public.purchase_by_brand")
 
-spark.stop()
+    spark.stop()
+
+
+if __name__ == '__main__':
+    fire.Fire(events_to_agg_to_postgres)

@@ -134,3 +134,4 @@ dmypy.json
 .idea/
 /airflow/logs/
 /airflow/plugins/
+/airflow/logs/scheduler/

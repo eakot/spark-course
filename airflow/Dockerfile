@@ -15,6 +15,3 @@ RUN apt update -y && apt-get install -y software-properties-common && \
 USER airflow
 RUN --mount=type=cache,target=/root/.cache \
     pip install --no-cache-dir apache-airflow-providers-apache-spark
-
-RUN --mount=type=cache,target=/root/.cache \
-    pip install --no-cache-dir plyvel loguru fire
