@@ -12,10 +12,3 @@ Spark UI доступен по адресу localhost:8079
 Airflow доступен по адресу localhost:8080
 логин/пароль: airflow/airflow
 
-# FAQ
-
-## Windows dir permissions
-
-Создать папки (logs, plugins) вручную (!) + собрать контейнер заново, только после запустить
-
-```icacls 'путь к папке' /grant *S-1-1-0:F /T```

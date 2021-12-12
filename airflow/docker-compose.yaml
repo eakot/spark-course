@@ -219,19 +219,10 @@ services:
     volumes:
       - .:/sources
 
-  jupyter:
-    image: jupyter/pyspark-notebook:latest
-    user: root
-    environment:
-      - JUPYTER_ENABLE_LAB=yes
-    working_dir: /data
-    ports:
-      - 8888:8888
-    volumes:
-      - ../data:/data
 
   spark-master:
     image: 'bitnami/spark:3.2.0'
+#    build: spark
     environment:
       - SPARK_MODE=master
       - SPARK_MASTER_URL='spark://spark-master:7077'

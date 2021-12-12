@@ -13,13 +13,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Create logs directory
-RUN mkdir -p logs
-
-# Install wget and download jars for Spark
+# install wget and download jars for spark
 RUN apt-get update && apt install -y wget
 
-RUN cd /tmp
 RUN mkdir -p jars
 RUN wget "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 RUN mv postgresql-42.3.1.jar jars/
+
+ENTRYPOINT ["python3"]
