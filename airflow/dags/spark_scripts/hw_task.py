@@ -32,8 +32,7 @@ def csv_to_parquet(load_data):
         .orderBy(f.col("purchase_count").asc())
 
     events_df.repartition(1).write.mode("overwrite").format("parquet").save(f'/data/{load_data}_agg.parquet'.format(load_data=load_data))
-    events_df_raspr.repartition(1).write.mode("overwrite").format("parquet").save(f'/data/{load_data}_agg_raspr.parquet'.format(load_data=load_data))
 
 if __name__ == '__main__':
-fire.Fire(csv_to_parquet)
+    fire.Fire(csv_to_parquet)
 
