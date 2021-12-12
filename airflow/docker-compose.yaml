@@ -87,6 +87,22 @@ services:
       retries: 5
     restart: always
 
+  postgresql:
+    image: 'bitnami/postgresql:13'
+    ports:
+      - 5432:5432
+    volumes:
+      - './services/postgresql:/bitnami/postgresql'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_USERNAME=p_user
+      - POSTGRESQL_PASSWORD=password123
+      - POSTGRESQL_DATABASE=postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "airflow" ]
+      interval: 5s
+      retries: 5
+
   redis:
     image: redis:latest
     expose:

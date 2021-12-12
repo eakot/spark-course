@@ -16,4 +16,4 @@ RUN --mount=type=cache,target=/root/.cache \
     pip install --no-cache-dir apache-airflow-providers-apache-spark
 
 RUN --mount=type=cache,target=/root/.cache \
-    pip install --no-cache-dir plyvel loguru
+    pip install --no-cache-dir plyvel fire loguru
