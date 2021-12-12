@@ -3,11 +3,12 @@ version: "3.9"
 services:
 
   spark_task_0:
-    build: download
+    build: .
     working_dir: /data
     volumes:
       - ./data:/data
     command: [ "http://37.139.43.86/bank.csv" ]
+    entrypoint: ["wget"]
 
   spark_task_1:
     build: .
