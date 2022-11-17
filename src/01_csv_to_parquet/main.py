@@ -24,7 +24,6 @@ def csv_to_parquet(source_csv_file: str, target_parquet_dir: str) -> None:
     # Load
     (df
         .repartition(1)
-
         .write
         .mode('overwrite')
         .format('parquet')
