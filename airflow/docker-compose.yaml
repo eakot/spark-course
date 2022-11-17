@@ -229,6 +229,7 @@ services:
       - 8888:8888
     volumes:
       - ../data:/data
+    command: "start-notebook.sh --NotebookApp.token=''"
 
   spark-master:
     image: 'bitnami/spark:3.2.0'
