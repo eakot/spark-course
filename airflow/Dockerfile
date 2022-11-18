@@ -15,5 +15,7 @@ USER airflow
 RUN --mount=type=cache,target=/root/.cache \
     pip install --no-cache-dir apache-airflow-providers-apache-spark
 
+RUN pip install --force-reinstall --no-cache-dir pyspark==3.2.0
+
 RUN --mount=type=cache,target=/root/.cache \
     pip install --no-cache-dir plyvel loguru fire
