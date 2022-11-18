@@ -49,39 +49,26 @@ with DAG(
         on_failure_callback=_move_csv_to_error_callback
     )
 
-    category_views_to_pg = SparkSubmitOperator(
-        task_id='category_views_to_pg',
-        conn_id='spark_local',
-        application='/opt/airflow/dags/spark_scripts/parquet_to_bq.py',
-        application_args=["--source_parquet_dir=/data/events/stats/category_views_{{ds_nodash}}.parquet",
-                          "--target_tablename=category_views",
-                          f"--url={url}",
-                          f"--user={user}",
-                          f"--password={password}",
-                          ],
-        name='category_views_to_pg_app',
-        jars=jars,
-        driver_class_path=jars,
-        execution_timeout=dt.timedelta(minutes=2),
-        on_failure_callback=_move_csv_to_error_callback
-    )
-
-    brand_purchases_to_pg = SparkSubmitOperator(
-        task_id='brand_purchases_to_pg',
-        conn_id='spark_local',
-        application='/opt/airflow/dags/spark_scripts/parquet_to_bq.py',
-        application_args=["--source_parquet_dir=/data/events/stats/brand_purchases_{{ds_nodash}}.parquet",
-                          "--target_tablename=brand_purchases",
-                          f"--url={url}",
-                          f"--user={user}",
-                          f"--password={password}",
-                          ],
-        name='brand_purchases_to_pg_app',
-        jars=jars,
-        driver_class_path=jars,
-        execution_timeout=dt.timedelta(minutes=2),
-        on_failure_callback=_move_csv_to_error_callback
-    )
+    tables = ['category_views', 'brand_purchases']
+    tasks_to_pg = []
+    for table in tables:
+        tasks_to_pg.append(SparkSubmitOperator(
+                task_id=f'{table}_to_pg',
+                conn_id='spark_local',
+                application='/opt/airflow/dags/spark_scripts/parquet_to_bq.py',
+                application_args=["--source_parquet_dir=/data/events/stats/{table}_{{ds_nodash}}.parquet",
+                                "--target_tablename={table}",
+                                f"--url={url}",
+                                f"--user={user}",
+                                f"--password={password}",
+                                ],
+                name='{table}_to_pg_app',
+                jars=jars,
+                driver_class_path=jars,
+                execution_timeout=dt.timedelta(minutes=2),
+                on_failure_callback=_move_csv_to_error_callback
+            )
+        )
 
     move_csv_to_success = BashOperator(
         task_id='move_csv_to_success',
@@ -96,5 +83,5 @@ with DAG(
     final_task = DummyOperator(task_id='end')
 
     start_task >> fetch_events >> calculate_stats
-    calculate_stats >> [category_views_to_pg, brand_purchases_to_pg] >> move_csv_to_success >> final_task
+    calculate_stats >> tasks_to_pg >> move_csv_to_success >> final_task
 
