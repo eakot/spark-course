@@ -11,7 +11,11 @@ RUN apt update -y && apt-get install -y software-properties-common && \
     export JAVA_HOME && \
     apt-get clean
 
+
 USER airflow
+RUN --mount=type=cache,target=/root/.cache \
+    pip install --no-cache-dir pyspark==3.2.0
+    
 RUN --mount=type=cache,target=/root/.cache \
     pip install --no-cache-dir apache-airflow-providers-apache-spark
 
