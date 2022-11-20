@@ -45,7 +45,7 @@ def csv_to_parquet(source_csv_file: str, target_parquet_dir: str) -> None:
                   .groupBy(["event_time", "brand"])
                   .agg(f.count('*').alias('brand_purchase')))
 
-    filename = Path(source_csv_file).stem.replace('-', '_')
+    filename = Path(source_csv_file).stem.replace('-', '')
     count_view.show()
     brand_purchase.show()
     # Load

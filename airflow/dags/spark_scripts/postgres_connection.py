@@ -1,32 +1,43 @@
+import fire
 from pyspark.sql import SparkSession
-import pyspark.sql.functions as f
-from datetime import datetime
-
-spark = SparkSession.builder \
-    .appName('postgres_connection_app') \
-    .getOrCreate()
-
-# write to airflow-postgres database
-# .option("url", "jdbc:postgresql://airflow-postgres:5432/airflow")
-# .option("user", "airflow")
-# .option("password", "airflow")
-# .option("dbtable", "public.aa_bank")
-# On Linux change host.docker.internal  >> 172.17.0.1
-# df = spark.read.parquet("/data/2021-11-26.parquet")
 
 
-(
-    df_load
-        .write
-        .format("jdbc")
-        .option("driver", "org.postgresql.Driver")
-        .mode("append")
-        .option("url", "jdbc:postgresql://host.docker.internal:5432/postgres")
-        .option("user", "p_user")
-        .option("password", "password123")
-        .option("dbtable", "public.events")
-        .option("fetchsize", 10000)
+def parquet_to_postgres(source_parquet_dir: str, target_tablename: str,
+                        url: str, login: str, password: str) -> None:
+    """
+    Second Spark's task (except for downloading data) which reads
+    the parquet file and writes the data to postgres db.
+    """
+    jars_path = 'jars/postgresql-42.3.1.jar'
+
+    spark = (SparkSession.builder
+        .config('spark.jars', jars_path)
+        .appName('parquet_to_postgres')
+        .getOrCreate()
+    )
+
+    # Extract
+    df = (spark.read
+        .parquet(source_parquet_dir)
+        .na.drop('any')
+    )
+
+    # Load
+    (df.write
+        .format('jdbc')
+        .mode('append')
+        .option('driver', 'org.postgresql.Driver')
+        .option('url', url)
+        .option('user', login)
+        .option('password', password)
+        .option('dbtable', target_tablename)
+        .option('fetchsize', 10000)
         .save()
-)
+    )
 
-spark.stop()
+    spark.stop()
+
+
+if __name__ == '__main__':
+    fire.Fire(parquet_to_postgres)
+
