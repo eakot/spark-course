@@ -1,7 +1,6 @@
 import fire
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as f
-import pyspark
 from pyspark.sql.types import *
 from pathlib import Path
 def csv_to_parquet(source_csv_file: str, target_parquet_dir: str) -> None:
@@ -46,12 +45,12 @@ def csv_to_parquet(source_csv_file: str, target_parquet_dir: str) -> None:
                   .groupBy(["event_time", "brand"])
                   .agg(f.count('*').alias('brand_purchase')))
 
-    filename = Path(source_csv_file).stem.replace('-', '')
+    filename = Path(source_csv_file).stem.replace('-', '_')
     count_view.show()
     brand_purchase.show()
     # Load
     (count_view
-        .coalesce(1)
+        .repartition(1)
         .write
         .parquet(
             path=str(Path(target_parquet_dir, f"count_view_{filename}.parquet")),
@@ -60,7 +59,7 @@ def csv_to_parquet(source_csv_file: str, target_parquet_dir: str) -> None:
         )
     )
     (brand_purchase
-        .coalesce(1)
+        .repartition(1)
         .write
         .parquet(
             path=str(Path(target_parquet_dir, f"brand_purchase_{filename}.parquet")),
