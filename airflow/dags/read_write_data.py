@@ -27,12 +27,12 @@ with DAG(
         execution_timeout=timedelta(minutes=20)
     )
 
-#    postgres_connection_task = SparkSubmitOperator(
-#        task_id='postgres_connection',
-#        conn_id='spark_local',
-#        application=f'/opt/airflow/dags/spark_scripts/postgres_connection.py',
-#        name='postgres_connection_app',
-#        execution_timeout=timedelta(minutes=10),
-#        packages='org.postgresql:postgresql:42.2.24'
-#    )
-    download >> spark_read_task
+    postgres_connection_task = SparkSubmitOperator(
+        task_id='postgres_connection',
+        conn_id='spark_local',
+        application=f'/opt/airflow/dags/spark_scripts/postgres_connection.py',
+        name='postgres_connection_app',
+        execution_timeout=timedelta(minutes=10),
+        packages='org.postgresql:postgresql:42.2.24'
+    )
+    download >> spark_read_task >> postgres_connection

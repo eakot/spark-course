@@ -1,7 +1,6 @@
 from pyspark.sql import SparkSession
-from datetime import datetime
 import pyspark.sql.functions as f
-from datetime import datetime, timedelta
+from datetime import datetime
 
 spark = SparkSession.builder \
     .appName('postgres_connection_app') \
@@ -17,7 +16,7 @@ spark = SparkSession.builder \
 
 
 (
-    df_load.withColumn("load_datetime", f.lit(datetime.now()))
+    df_load
         .write
         .format("jdbc")
         .option("driver", "org.postgresql.Driver")
