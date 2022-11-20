@@ -20,6 +20,10 @@ def csv_to_parquet(source_csv_file: str, target_parquet_dir: str) -> None:
         .option('inferSchema', 'true')
         .load(source_csv_file)
     )
+    # Transform
+    count_view = df.filter(f.col('event_type') == 'view').count()
+    count_purchase = df.filter(f.col('event_type') == 'purchase').count()
+    df_load = spark.createDataFrame([{"Count_view": count_view, "Count_purchase": count_purchase}])
 
     # Load
     (df

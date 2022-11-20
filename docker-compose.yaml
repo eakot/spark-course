@@ -28,7 +28,7 @@ services:
   postgresql:
     image: 'bitnami/postgresql:13'
     ports:
-      - 5432:5432
+      - 5434:5432
     volumes:
       - './services/postgresql:/bitnami/postgresql'
     environment:

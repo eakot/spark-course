@@ -17,7 +17,7 @@ with DAG(
 
     download = BashOperator(
         task_id='run_after_loop',
-        bash_command='cd /data; wget http://37.139.43.86/events/{{ ds }}'
+        bash_command='cd /data; wget http://89.208.196.213/events/{{ ds }}'
     )
 
     download
