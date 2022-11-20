@@ -36,8 +36,8 @@ with DAG(
         application_args=["--source_parquet_dir=/data/count_view_{{ds_nodash}}.parquet",
                           "--target_tablename={count_view}",
                             f"--url={url}",
-                            f"--user={p_user}",
-                            f"--password={password123}"],
+                            f"--user='p_user'",
+                            f"--password='password123'"],
         name='postgres_connection_app_view',
         execution_timeout=timedelta(minutes=10),
         packages='org.postgresql:postgresql:42.2.24'
@@ -50,10 +50,11 @@ with DAG(
         application_args=["--source_parquet_dir=/data/count_purchase_{{ds_nodash}}.parquet",
                           "--target_tablename={purchase_view}",
                             f"--url={url}",
-                            f"--user={p_user}",
-                            f"--password={password123}"],
+                            f"--user='p_user'",
+                            f"--password='password123'"],
         name='postgres_connection_app_purchase',
         execution_timeout=timedelta(minutes=10),
         packages='org.postgresql:postgresql:42.2.24'
     )
-    download >> spark_read_task >> postgres_connection_1
+    download >> spark_read_task >> postgres_connection_task_view
+    spark_read_task >> postgres_connection_task_purchase
