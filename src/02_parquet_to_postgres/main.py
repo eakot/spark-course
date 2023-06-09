@@ -1,5 +1,6 @@
 import fire
 from pyspark.sql import SparkSession
+import pyspark.sql.functions as f
 
 
 def parquet_to_postgres(source_parquet_dir: str, target_tablename: str,
